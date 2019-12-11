@@ -14,6 +14,8 @@ function init() {
     renderSearchHistory();
 }
 
+// BUG FIX: Handle "404" errors
+
 // FUNCTIONS RELATED TO SEARCH HISTORY ===========================================================
 
 function renderSearchHistory() {
@@ -99,8 +101,6 @@ function renderCurrentWeather(weatherObj) {
     $('#cityTemp').text(temp);
     $('#cityHumidity').text(humidity);
     $('#cityWind').text(wind);
-
-    
 }
 
 function renderForecast(forecastObj) {
@@ -109,10 +109,10 @@ function renderForecast(forecastObj) {
     var forecast = forecastObj.list;
     // console.log(forecast);
     forecast.forEach(function(day) {
-    //    console.log(day);
+       console.log(day);
         var newDay = $('<div>').addClass('fiveDayItem');
         newDay.append('<div class="theDate">'+convertToday(day.dt)+'</div>');
-        newDay.append('<div class="theImage">'+getWeatherIcon(day.weather[0].main)+'</div>');
+        newDay.append('<div class="theImage"><img src="'+getWeatherIcon(day.weather[0].icon)+'"/></div>');
         newDay.append('<div class="theTemp">'+Math.round(day.temp.day)+'°F</div>');
         newDay.append('<div class="theHumidity">'+day.humidity+'%</div>');
         $('#fiveDayWeather').append(newDay);
@@ -120,7 +120,7 @@ function renderForecast(forecastObj) {
 }
 
 function getWeatherIcon(weather) {
-    return weather;
+    return 'http://openweathermap.org/img/wn/'+weather+'@2x.png';
 }
 
 function runAjax(query, method) {
@@ -131,7 +131,6 @@ function runAjax(query, method) {
 }
 
 function setUVI(lat,lon) {
-    // var queryURL = "https://api.openweathermap.org/data/2.5/uvi/history?lat="+lat+"&lon="+lon+"&cnt=1&start="+Math.round(new Date("2019/12/10 12:00:00").getTime()/1000)+"&appid="+apiKey;
     var queryURL = "http://api.openweathermap.org/data/2.5/uvi?lat="+lat+"&lon="+lon+"&appid="+apiKey;
     runAjax(queryURL, makeUVIObject);
 }

@@ -90,18 +90,17 @@ function runSearch() {
 }
 
 function renderCurrentWeather(weatherObj) {
-    // console.log(weatherObj);
+    setUVI(weatherObj.coord.lat, weatherObj.coord.lon);
     var temp = Math.round(weatherObj.main.temp)+"°F";
     var humidity = weatherObj.main.humidity+"%";
     var wind = weatherObj.wind.speed + "mph";
-    getUVI(weatherObj.coord.lat, weatherObj.coord.lon);
 
     $('#cityTitle').text(currentCity)
-    // $('#currentDay'
     $('#cityTemp').text(temp);
-    $('#cityUVI').html('UVI: '+uvi);
     $('#cityHumidity').text(humidity);
     $('#cityWind').text(wind);
+
+    
 }
 
 function renderForecast(forecastObj) {
@@ -131,7 +130,7 @@ function runAjax(query, method) {
     }).then(method);
 }
 
-function getUVI(lat,lon) {
+function setUVI(lat,lon) {
     // var queryURL = "https://api.openweathermap.org/data/2.5/uvi/history?lat="+lat+"&lon="+lon+"&cnt=1&start="+Math.round(new Date("2019/12/10 12:00:00").getTime()/1000)+"&appid="+apiKey;
     var queryURL = "http://api.openweathermap.org/data/2.5/uvi?lat="+lat+"&lon="+lon+"&appid="+apiKey;
     runAjax(queryURL, makeUVIObject);
@@ -141,17 +140,21 @@ function makeUVIObject(uviObj) {
     var val = uviObj.value;
     console.log(val);
 
-    if (val <= 3) {
-        console.log('uvi is less tahn 3');
-        uvi = '<span class="green">'+val+'</span>';
-    } else if (val <= 6) {
-        uvi = '<span class="yellow">'+val+'</span>';
-    } else if (val <= 8) {
-        uvi = '<span class="orange">'+val+'</span>';
-    } else {
-        uvi = '<span class="red">'+val+'</span>';
-    }
+    var uviDiv = $('#cityUVI');
+    var level = ""
 
+    if (val <= 3) {
+        level = "green";
+    } else if (val <= 6) {
+        level = "yellow";
+    } else if (val <= 8) {
+        level = "orange";
+    } else if (val <= 10) {
+        level = "red";
+    } else {
+        level = "purple";
+    }
+    uviDiv.html('UVI: <span class="'+level+'">'+val+'</span>');
 }
 
 function convertToday(unix) {

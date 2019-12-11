@@ -1,6 +1,7 @@
 // Global variables
 var searchHistory = ["San Francisco","New York","Dallas"];
 var currentCity;
+var uvi;
 
 var apiKey = "b28f5f2d03105fb62d4a0da76660b846";
 apiKey = "166a433c57516f51dfab1f7edaed8413";
@@ -89,12 +90,38 @@ function runSearch() {
 }
 
 function renderCurrentWeather(weatherObj) {
-    console.log(weatherObj);
-    var UVI = getUVI(weatherObj.coord.lat, weatherObj.coord.lon);
+    // console.log(weatherObj);
+    var temp = Math.round(weatherObj.main.temp)+"°F";
+    var humidity = weatherObj.main.humidity+"%";
+    var wind = weatherObj.wind.speed + "mph";
+    getUVI(weatherObj.coord.lat, weatherObj.coord.lon);
+
+    $('#cityTitle').text(currentCity)
+    // $('#currentDay'
+    $('#cityTemp').text(temp);
+    $('#cityUVI').html('UVI: '+uvi);
+    $('#cityHumidity').text(humidity);
+    $('#cityWind').text(wind);
 }
 
 function renderForecast(forecastObj) {
     // console.log(forecastObj);
+    $('#fiveDayWeather').empty();
+    var forecast = forecastObj.list;
+    // console.log(forecast);
+    forecast.forEach(function(day) {
+    //    console.log(day);
+        var newDay = $('<div>').addClass('fiveDayItem');
+        newDay.append('<div class="theDate">'+convertToday(day.dt)+'</div>');
+        newDay.append('<div class="theImage">'+getWeatherIcon(day.weather[0].main)+'</div>');
+        newDay.append('<div class="theTemp">'+Math.round(day.temp.day)+'°F</div>');
+        newDay.append('<div class="theHumidity">'+day.humidity+'%</div>');
+        $('#fiveDayWeather').append(newDay);
+    });
+}
+
+function getWeatherIcon(weather) {
+    return weather;
 }
 
 function runAjax(query, method) {
@@ -105,14 +132,30 @@ function runAjax(query, method) {
 }
 
 function getUVI(lat,lon) {
-    console.log(lat,lon);
     // var queryURL = "https://api.openweathermap.org/data/2.5/uvi/history?lat="+lat+"&lon="+lon+"&cnt=1&start="+Math.round(new Date("2019/12/10 12:00:00").getTime()/1000)+"&appid="+apiKey;
-    // var queryURL = "http://api.openweathermap.org/data/2.5/uvi/forecast?lat="+lat+"&lon="+lon+"&cnt=3&appid="+apiKey;
-    // return runAjax(queryURL, makeUVIObject);
+    var queryURL = "http://api.openweathermap.org/data/2.5/uvi?lat="+lat+"&lon="+lon+"&appid="+apiKey;
+    runAjax(queryURL, makeUVIObject);
 }
 
-function makeUVIObject(uvi) {
-    console.log(uvi);
+function makeUVIObject(uviObj) {
+    var val = uviObj.value;
+    console.log(val);
+
+    if (val <= 3) {
+        console.log('uvi is less tahn 3');
+        uvi = '<span class="green">'+val+'</span>';
+    } else if (val <= 6) {
+        uvi = '<span class="yellow">'+val+'</span>';
+    } else if (val <= 8) {
+        uvi = '<span class="orange">'+val+'</span>';
+    } else {
+        uvi = '<span class="red">'+val+'</span>';
+    }
+
+}
+
+function convertToday(unix) {
+    return moment(unix,'X').format('M/D/YYYY');
 }
 
 // Event listeners

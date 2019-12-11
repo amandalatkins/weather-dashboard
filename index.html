@@ -15,20 +15,30 @@
         <button id="searchBtn">Search</button>
 
         <div class="historyContainer">
-            <button class="cityBtn">San Francisco</button>
         </div>
     </div>
 
     <div id="displayContainer">
         <div class="currentWeather">
-
+            <div id="cityTitle"></div>
+            <div id="currentDay"></div>
+            <div id="cityTemp"></div>
+            <div id="cityHumidity"></div>
+            <div id="cityWind"></div>
+            <div id="cityUVI"></div>
         </div>
         <div class="fiveDayWeather">
-
+            <div class="fiveDayItem">
+                <div class="theDate"></div>
+                <div class="theImage"></div>
+                <div class="theTemp"></div>
+                <div class="theHumidity"></div>
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 </html>

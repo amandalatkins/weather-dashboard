@@ -109,10 +109,18 @@ function initSearch(e) {
                 return;
             }
             currentCity = searchField.val();
+            searchField.val('');
             runSearch();
+            if ($(window).width() < 992) {
+            toggleMobileSearch();
+        }
         } else if ($(e.target).attr('id') !== "currentLocation") {
             currentCity = $(e.target).val();
+            searchField.val('');
             runSearch();
+            if ($(window).width() < 992) {
+                toggleMobileSearch();
+            }
         }
     } 
     // Else if there was an enter key pressed while in the search field
@@ -122,6 +130,9 @@ function initSearch(e) {
         }
         currentCity = searchField.val();
         runSearch();
+        if ($(window).width() < 992) {
+            toggleMobileSearch();
+        }
     }
 
 }

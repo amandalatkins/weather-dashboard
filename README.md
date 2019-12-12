@@ -33,8 +33,8 @@ Open ``index.html`` in your preferred web browser
 * [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 * [Moment.js](https://momentjs.com/)
 * [Bootstrap](https://getbootstrap.com)
-* [OpenWeather API](https://openweathermap.org/api);
-* [Teleport API](https://developers.teleport.org/api/);
+* [OpenWeather API](https://openweathermap.org/api)
+* [Teleport API](https://developers.teleport.org/api/)
 
 ## Deployed Link
 

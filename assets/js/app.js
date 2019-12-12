@@ -56,15 +56,12 @@ function getCurrentCity() {
 }
 
 function getGeoLocation() {
-    // console.log(window);
-    console.log('requested');
     $('body').css('cursor','wait');
     window.navigator.geolocation.getCurrentPosition(locAllowed,locDenied);
 }
 
 function locAllowed(position) {
     var queryURL = "https://api.openweathermap.org/data/2.5/weather?appid="+apiKey+"&lat="+position.coords.latitude+"&lon="+position.coords.longitude+"&units=imperial";
-    console.log(queryURL);
     $.ajax({
         url: queryURL,
         method: "GET"
@@ -78,7 +75,6 @@ function locAllowed(position) {
 
 function locDenied(error) {
     $('body').css('cursor','default');
-    console.log(error);
 }
 
 function addNewCity() {
@@ -144,20 +140,16 @@ function runSearch() {
         queryURL += ",US";
     }
     queryURL += "&units=imperial&appid="+apiKey;
-    // console.log(queryURL);
     runAjax(queryURL, renderCurrentWeather);
 }
 
 function renderCurrentWeather(weatherObj) {
-    // console.log(weatherObj);
     currentCity = weatherObj.name;
     addNewCity();
     setUVI(weatherObj.coord.lat, weatherObj.coord.lon);
     var temp = Math.round(weatherObj.main.temp)+"°";
     var humidity = weatherObj.main.humidity+"%";
     var wind = Math.round(weatherObj.wind.speed) + " mph";
-
-    // console.log(weatherObj.timezone);
 
     $('#cityTitle').text(currentCity);
     $('#currentDay').text(convertToday(weatherObj.dt,weatherObj.timezone, 'dddd, MMMM D ∙ h:mma'));
@@ -174,7 +166,7 @@ function renderCurrentWeather(weatherObj) {
 }
 
 function renderForecast(forecastObj) {
-    console.log(forecastObj);
+    // console.log(forecastObj);
     $('#fiveDayWeather').empty();
     var forecast = forecastObj.list;
     var newRow = $('<div>').addClass('row');
@@ -211,18 +203,25 @@ function getCityImage() {
         $.ajax({
             url: cityUrl
         }).then(function(response) { 
-            imageUrl = response["_links"]["city:urban_area"].href+"images";
-            $.ajax({
-                url: imageUrl,
-                method: "GET"
-            }).then(function(response) {
-                console.log(response);
-                if ($(window).width() < 992) {
-                    renderCityBackground(response.photos[0].image.mobile);
-                } else {
-                    renderCityBackground(response.photos[0].image.web);
-                }
-            });
+            console.log(response);
+            
+            if (!response["_links"]["city:urban_area"]) {
+                $('#weatherBackground').attr('style','background-image:url("'+getDefaultPicture(true)+'")');
+            } else {
+                imageUrl = response["_links"]["city:urban_area"].href+"images";
+                $.ajax({
+                    url: imageUrl,
+                    method: "GET"
+                }).then(function(response) {
+                    console.log(response);
+                    if ($(window).width() < 992) {
+                        renderCityBackground(response.photos[0].image.mobile);
+                    } else {
+                        renderCityBackground(response.photos[0].image.web);
+                    }
+                });
+            }
+            
         });
     });
     
@@ -320,7 +319,6 @@ function getHour() {
 function toggleMobileSearch() {
     var searchContainer = $('#searchContainer');
     var curState = searchContainer.css('display');
-    console.log(curState);
     if (curState === "block") {
         searchContainer.fadeOut('fast');
     } else if (curState === "none") {

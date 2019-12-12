@@ -1,0 +1,247 @@
+#weatherBackground {
+    background-size: cover;
+    background-position:center center;
+    background-repeat: no-repeat;
+    min-height: 100%;
+    position:relative;
+}
+
+.overlay {
+    position:absolute;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.35);
+}
+
+#weatherDashboard {
+    padding-top: 6rem;
+}
+
+#searchContainer {
+    background-color: rgba(255, 255, 255, 0.65);
+    padding: 1.5rem;
+    border-radius: 5px;
+    display:block;
+}
+
+.search-form > input {
+    border: none;
+    font-size: 16px;
+    color: #495057;
+    padding: 0 10px;
+    width: 70%;
+    float: left;
+    height:36px;
+    line-height:36px;
+    border-radius: 5px 0 0 5px;
+}
+
+input:focus, button:focus {
+    outline:none;
+}
+
+.search-form > button {
+    border: none;
+    float: left;
+    width: 15%;
+    background-color:#fff;
+    color: #fff;
+    height: 36px;
+    text-align: center;
+}
+
+.search-form > button:last-of-type {
+    border-radius: 0 5px 5px 0;
+    background-color: #37b24d;
+}
+
+.search-form > button:after {
+    content: '';
+    background-size: 16px auto;
+    background-repeat: no-repeat;
+    background-position:center center;
+    height: 36px;
+    width: 100%;
+    display:inline-block;
+}
+
+.search-form > button:first-of-type:after {
+    background-image: url('../images/location-arrow-solid.svg');
+}
+
+.search-form > button:last-of-type:after {
+    background-image: url('../images/search-solid.svg');
+}
+
+.search-form:after {
+    content: '';
+    clear: both;
+    display:block;
+}
+
+.historyContainer {
+    margin-top: 1rem;
+}
+
+.cityBtn {
+    width: 100%;
+    display: block;
+    margin-bottom: 1rem;
+    padding: 10px 0;
+    border-radius: 5px;
+    border: none;
+    background-color: rgba(255,255,255,0.75)
+}
+
+#cityTitle {
+    /* font-size: 2rem; */
+    font-weight: 300;
+    color: #fff;
+}
+
+#currentDay {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+#cityTemp {
+    font-size: 6rem;
+    color: #fff;
+    font-weight: 200;
+    padding-top: 2rem;
+    display:inline-block;
+    vertical-align:bottom;
+}
+
+#cityTemp + div {
+    display:inline-block;
+    vertical-align:bottom;
+    padding-bottom: 1rem;
+}
+
+#cityConditions {
+    font-size: 1.5rem;
+    text-transform: capitalize;
+    color: #fff;
+    font-weight:200;
+}
+
+#cityIcon img {
+    height: 50px;
+    width: auto;
+}
+
+h6 {
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+#cityHumidity,#cityWind,#cityUVI { color: #fff;}
+
+#fiveDayWeather {
+    color: #fff;
+    padding-top: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+.fiveDayItem {
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.fiveDayItem .theDate {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+#cityUVI span {
+    display:inline-block;
+    padding: 3px 5px;
+    border-radius: 5px;
+}
+
+.green {
+    background-color:#2b8a3e;
+}
+
+.yellow {
+    background-color: #fcc419;
+}
+
+.orange {
+    background-color: #f76707;
+}
+
+.red {  
+    background-color: #c92a2a;
+}   
+
+.purple {
+    background-color: #5f3dc4;
+}
+
+.clearfix:after {
+    display: block;
+    content: '';
+    clear: both;
+}
+
+.navbar-brand {
+    font-size: 1rem;
+}
+
+.navbar {
+    border-bottom: 1px solid rgba(255,255,255,0.35);
+}
+
+@media screen and (max-width: 991px) {
+    #searchContainer {
+        position: fixed;
+        top: 3.2rem;
+        left: 0;
+        width: 100%;
+        background-color:#e9ecef;
+        border-radius: 0;
+        display:none;
+    }
+    .fiveDayItem img {
+        width: 50px;
+        height: auto;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .fiveDayItem > div {
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .fiveDayItem {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        padding: 0;
+        border-radius: 0;
+    }
+    #fiveDayWeather {
+        padding-top: 0;
+        margin-top: 2rem;
+    }
+
+    .fiveDayItem > .theDate {
+        font-size: 14px;
+    }
+    .fiveDayItem > .theImage {
+        margin: 0 10px;
+    }
+    .fiveDayItem > .theTemp {
+        margin-right: 20px;
+    }
+}

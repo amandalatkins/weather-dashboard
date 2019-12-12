@@ -1,5 +1,5 @@
 // Global variables
-var searchHistory = ["San Francisco","New York","Dallas"];
+var searchHistory = [];
 var currentCity;
 var uvi;
 
@@ -12,6 +12,10 @@ function init() {
     getSearchHistory();
     getCurrentCity();
     renderSearchHistory();
+    // renderCurrentWeather();
+    if (!currentCity || currentCity === "") {
+        setDefaults();
+    }
 }
 
 // BUG FIX: Handle "404" errors
@@ -43,15 +47,51 @@ function storeSearchHistory() {
 }
 
 function getCurrentCity() {
-    currentCity = searchHistory[0];
+    if (!searchHistory[0] || searchHistory[0] === "") {
+        
+    } else {
+        currentCity = searchHistory[0];
+        runSearch();
+    }
+}
+
+function getGeoLocation() {
+    // console.log(window);
+    console.log('requested');
+    $('body').css('cursor','wait');
+    window.navigator.geolocation.getCurrentPosition(locAllowed,locDenied);
+}
+
+function locAllowed(position) {
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?appid="+apiKey+"&lat="+position.coords.latitude+"&lon="+position.coords.longitude+"&units=imperial";
+    console.log(queryURL);
+    $.ajax({
+        url: queryURL,
+        method: "GET"
+    }).then(function(response) {
+        $('body').css('cursor','default');
+        currentCity = response.name;
+        renderCurrentWeather(response);
+    });
+    // runAjax(queryURL, renderCurrentWeather);
+}
+
+function locDenied(error) {
+    $('body').css('cursor','default');
+    console.log(error);
 }
 
 function addNewCity() {
-    searchHistory.unshift(currentCity);
-    // Let's only keep 8 cities at a time, so if the length has gotten to 9
-    if (searchHistory.length == 9) {
-        // Drop the last element from the array
-        searchHistory.splice(8,1);
+    if (searchHistory.indexOf(currentCity) === -1) {
+        searchHistory.unshift(currentCity);
+        // Let's only keep 10 cities at a time, so if the length has gotten to 11
+        if (searchHistory.length == 11) {
+            // Drop the last element from the array
+            searchHistory.splice(8,1);
+        }
+    } else {
+        searchHistory.splice(searchHistory.indexOf(currentCity), 1);
+        searchHistory.unshift(currentCity);
     }
     storeSearchHistory();
     renderSearchHistory();
@@ -60,16 +100,19 @@ function addNewCity() {
 // FUNCTIONS RELATED TO ACTUALLY SEARCHING AND RENDERING RESULTS
 
 function initSearch(e) {
+
     var searchField = $('#searchField');
+
     if (e.target.matches('button')) {   
         if ($(e.target).attr('id') === "searchBtn") {
             if (searchField.val() === "") {
                 return;
             }
             currentCity = searchField.val();
-            addNewCity();
-        } else {
+            runSearch();
+        } else if ($(e.target).attr('id') !== "currentLocation") {
             currentCity = $(e.target).val();
+            runSearch();
         }
     } 
     // Else if there was an enter key pressed while in the search field
@@ -78,49 +121,104 @@ function initSearch(e) {
             return;
         }
         currentCity = searchField.val();
-        addNewCity();
+        runSearch();
     }
-    runSearch();
+
 }
 
 function runSearch() {
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q="+currentCity+"&units=imperial&appid="+apiKey;
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q="+currentCity;
+    // San Francisco returns San Francisco, Columbia, so just for the purposes of this exercise, let's display our SF weather
+    if (currentCity === "San Francisco") {
+        queryURL += ",US";
+    }
+    queryURL += "&units=imperial&appid="+apiKey;
+    // console.log(queryURL);
     runAjax(queryURL, renderCurrentWeather);
-
-    queryURL = "https://api.openweathermap.org/data/2.5/forecast/daily?q="+currentCity+"&units=imperial&cnt=5&appid="+apiKey;
-    runAjax(queryURL, renderForecast);
 }
 
 function renderCurrentWeather(weatherObj) {
+    // console.log(weatherObj);
+    currentCity = weatherObj.name;
+    addNewCity();
     setUVI(weatherObj.coord.lat, weatherObj.coord.lon);
-    var temp = Math.round(weatherObj.main.temp)+"°F";
+    var temp = Math.round(weatherObj.main.temp)+"°";
     var humidity = weatherObj.main.humidity+"%";
-    var wind = weatherObj.wind.speed + "mph";
+    var wind = Math.round(weatherObj.wind.speed) + " mph";
 
-    $('#cityTitle').text(currentCity)
+    // console.log(weatherObj.timezone);
+
+    $('#cityTitle').text(currentCity);
+    $('#currentDay').text(convertToday(weatherObj.dt,weatherObj.timezone, 'dddd, MMMM D ∙ h:mma'));
     $('#cityTemp').text(temp);
-    $('#cityHumidity').text(humidity);
-    $('#cityWind').text(wind);
+    $('#cityConditions').text(weatherObj.weather[0].description);
+    $('#cityIcon').html("<img src='"+getWeatherIcon(weatherObj.weather[0].icon)+"'/>");
+    $('#cityHumidity').html("<h6>Humidity</h6>"+humidity);
+    $('#cityWind').html("<h6>Wind Speed</h6>"+wind);
+
+    queryURL = "https://api.openweathermap.org/data/2.5/forecast/daily?q="+currentCity+"&units=imperial&cnt=5&appid="+apiKey;
+    runAjax(queryURL, renderForecast);
+
+    getCityImage();
 }
 
 function renderForecast(forecastObj) {
-    // console.log(forecastObj);
+    console.log(forecastObj);
     $('#fiveDayWeather').empty();
     var forecast = forecastObj.list;
-    // console.log(forecast);
+    var newRow = $('<div>').addClass('row');
+    var i = 0;
     forecast.forEach(function(day) {
-       console.log(day);
-        var newDay = $('<div>').addClass('fiveDayItem');
-        newDay.append('<div class="theDate">'+convertToday(day.dt)+'</div>');
+
+        var newCol = $('<div>').addClass('col-xs-12 col-md');
+        var newDay = $('<div>').addClass('fiveDayItem'); 
+        newDay.append('<div class="theDate">'+convertToday(day.dt, null, 'MMM D')+'</div>');
         newDay.append('<div class="theImage"><img src="'+getWeatherIcon(day.weather[0].icon)+'"/></div>');
-        newDay.append('<div class="theTemp">'+Math.round(day.temp.day)+'°F</div>');
-        newDay.append('<div class="theHumidity">'+day.humidity+'%</div>');
-        $('#fiveDayWeather').append(newDay);
+        newDay.append('<div class="theTemp">'+Math.round(day.temp.day)+'°</div>');
+        newDay.append('<div class="theHumidity">'+day.humidity+'% Humidity</div>');
+        newCol.append(newDay);
+        newRow.append(newCol);
     });
+    $('#fiveDayWeather').append(newRow);
 }
 
 function getWeatherIcon(weather) {
     return 'http://openweathermap.org/img/wn/'+weather+'@2x.png';
+}
+
+function getCityImage() {
+    var queryURL = "http://api.teleport.org/api/cities/?search="+currentCity;
+
+    var cityUrl;
+    var imageUrl;
+
+    $.ajax({
+        url: queryURL,
+        method: "GET"
+    }).then(function(response) {
+        cityUrl = response["_embedded"]['city:search-results'][0]["_links"]["city:item"].href;
+        $.ajax({
+            url: cityUrl
+        }).then(function(response) { 
+            imageUrl = response["_links"]["city:urban_area"].href+"images";
+            $.ajax({
+                url: imageUrl,
+                method: "GET"
+            }).then(function(response) {
+                console.log(response);
+                if ($(window).width() < 992) {
+                    renderCityBackground(response.photos[0].image.mobile);
+                } else {
+                    renderCityBackground(response.photos[0].image.web);
+                }
+            });
+        });
+    });
+    
+}
+
+function renderCityBackground(imgUrl) {
+    $('#weatherBackground').attr('style','background-image: url("'+imgUrl+'")');
 }
 
 function runAjax(query, method) {
@@ -132,15 +230,14 @@ function runAjax(query, method) {
 
 function setUVI(lat,lon) {
     var queryURL = "http://api.openweathermap.org/data/2.5/uvi?lat="+lat+"&lon="+lon+"&appid="+apiKey;
-    runAjax(queryURL, makeUVIObject);
+    runAjax(queryURL, handleUVIObject);
 }
 
-function makeUVIObject(uviObj) {
+function handleUVIObject(uviObj) {
     var val = uviObj.value;
-    console.log(val);
 
     var uviDiv = $('#cityUVI');
-    var level = ""
+    var level = "";
 
     if (val <= 3) {
         level = "green";
@@ -153,13 +250,92 @@ function makeUVIObject(uviObj) {
     } else {
         level = "purple";
     }
-    uviDiv.html('UVI: <span class="'+level+'">'+val+'</span>');
+    uviDiv.html('<h6>UV Index</h6><span class="'+level+'">'+val+'</span>');
 }
 
-function convertToday(unix) {
-    return moment(unix,'X').format('M/D/YYYY');
+function convertToday(unix, utc, format) {
+    if (utc) {
+        var utc = utc/60;
+        return moment.utc().utcOffset(utc).format(format);
+    } else {
+        return moment.unix(unix).format(format);
+    }
+}
+
+function setDefaults() {
+    $('#weatherBackground').attr('style','background-image:url("'+getDefaultPicture(false)+'")');
+}
+
+function getDefaultPicture(isCurrentCity) {
+    var hour = getHour();
+    var imgUrl;
+    if (hour <= 5 || hour >= 20) {
+
+        if (!isCurrentCity) {
+            $('#cityTitle').text('Good Night');
+        }
+
+        imgUrl = "https://images.unsplash.com/photo-1516191726963-61dae894c237?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80";
+
+    } 
+    else if (hour > 5 && hour < 12) {
+        if (!isCurrentCity) {
+            $('#cityTitle').text('Good Morning');
+        }
+        imgUrl = "https://images.unsplash.com/photo-1519196806608-94026ab75b53?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2249&q=80";
+    } 
+    else if (hour >= 12 && hour < 18) {
+        if (!isCurrentCity) {
+            $('#cityTitle').text('Good Afternoon');
+        }
+        imgUrl = "https://images.unsplash.com/photo-1567533905227-039caf02237a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1934&q=80";
+    } 
+    else {
+        if (!isCurrentCity) {
+            $('#cityTitle').text('Good Evening');
+        }
+        imgUrl = "https://images.unsplash.com/photo-1540875880199-425bbbc17b24?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2250&q=80";
+    }
+    if (!isCurrentCity) {
+        $('#currentDay').text('Use the search box to choose a city or click the arrow icon to use your current location.');
+    }
+    return imgUrl;
+}
+
+function getHour() {
+    return moment().format('k');
+}
+
+function toggleMobileSearch() {
+    var searchContainer = $('#searchContainer');
+    var curState = searchContainer.css('display');
+    console.log(curState);
+    if (curState === "block") {
+        searchContainer.fadeOut('fast');
+    } else if (curState === "none") {
+        searchContainer.fadeIn('fast');
+    }
 }
 
 // Event listeners
 $(document).on('click','#searchContainer',initSearch);
 $('#searchField').on('keyup',initSearch);
+$('#currentLocation').on('click',getGeoLocation);
+$('.navbar-toggler').on('click',toggleMobileSearch);
+
+
+// teleport.org api
+// Get city photos
+// http://api.teleport.org/api/cities/?search=San+Francisco
+
+// then use urban areas link from returned + /images
+// http://api.teleport.org/api/urban_areas/slug:san-francisco-bay-area/images
+// There is a mobile version and a web version for use
+
+$(function () {
+    'use strict'
+  
+    $('[data-toggle="offcanvas"]').on('click', function () {
+      $('.offcanvas-collapse').toggleClass('open')
+    })
+  })

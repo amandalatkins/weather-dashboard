@@ -228,6 +228,7 @@ function getCityImage() {
 }
 
 function renderCityBackground(imgUrl) {
+    imgUrl = imgUrl.replace('http://','https://');
     $('#weatherBackground').attr('style','background-image: url("'+imgUrl+'")');
 }
 

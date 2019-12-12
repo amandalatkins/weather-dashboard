@@ -38,7 +38,7 @@ Open ``index.html`` in your preferred web browser
 
 ## Deployed Link
 
-* [See Live App](https://amandalatkins.github.io/day-planner)
+* [See Live App](https://amandalatkins.github.io/weather-dashboard)
 
 ## Screenshots
 

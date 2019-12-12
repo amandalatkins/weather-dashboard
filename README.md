@@ -1,4 +1,4 @@
-# Work Day Planner
+# Weather Dashboard
 
 ## Summary
 

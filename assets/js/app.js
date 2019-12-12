@@ -186,11 +186,11 @@ function renderForecast(forecastObj) {
 }
 
 function getWeatherIcon(weather) {
-    return 'http://openweathermap.org/img/wn/'+weather+'@2x.png';
+    return 'https://openweathermap.org/img/wn/'+weather+'@2x.png';
 }
 
 function getCityImage() {
-    var queryURL = "http://api.teleport.org/api/cities/?search="+currentCity;
+    var queryURL = "https://api.teleport.org/api/cities/?search="+currentCity;
 
     var cityUrl;
     var imageUrl;
@@ -239,7 +239,7 @@ function runAjax(query, method) {
 }
 
 function setUVI(lat,lon) {
-    var queryURL = "http://api.openweathermap.org/data/2.5/uvi?lat="+lat+"&lon="+lon+"&appid="+apiKey;
+    var queryURL = "https://api.openweathermap.org/data/2.5/uvi?lat="+lat+"&lon="+lon+"&appid="+apiKey;
     runAjax(queryURL, handleUVIObject);
 }
 
@@ -331,20 +331,3 @@ $(document).on('click','#searchContainer',initSearch);
 $('#searchField').on('keyup',initSearch);
 $('#currentLocation').on('click',getGeoLocation);
 $('.navbar-toggler').on('click',toggleMobileSearch);
-
-
-// teleport.org api
-// Get city photos
-// http://api.teleport.org/api/cities/?search=San+Francisco
-
-// then use urban areas link from returned + /images
-// http://api.teleport.org/api/urban_areas/slug:san-francisco-bay-area/images
-// There is a mobile version and a web version for use
-
-$(function () {
-    'use strict'
-  
-    $('[data-toggle="offcanvas"]').on('click', function () {
-      $('.offcanvas-collapse').toggleClass('open')
-    })
-  })

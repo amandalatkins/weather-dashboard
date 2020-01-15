@@ -49,7 +49,7 @@ Open ``index.html`` in your preferred web browser
 
 The following snippet shows the function that receives and handles a search input, whether from a clicking the search button, clicking the current location button, or pressing the enter key.
 
-```
+```javascript
     function initSearch(e) {
 
         var searchField = $('#searchField');
